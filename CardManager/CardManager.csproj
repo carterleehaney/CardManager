@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>Resources\application.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\application.ico" />
+    <Resource Include="Resources\background.jpg" />
+    <Resource Include="Resources\PressStart2P.ttf" />
+  </ItemGroup>
+
+</Project>
