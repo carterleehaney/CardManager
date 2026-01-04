@@ -2,6 +2,9 @@
 
 A Windows C# desktop application for managing and tracking TCGPlayer card information.
 
+<img width="1422" height="805" alt="image" src="https://github.com/user-attachments/assets/05009f99-e582-46ff-acf0-2958db302fc5" />
+
+
 ## Features
 
 - **Add Cards by ID**: Enter a TCGPlayer product ID to fetch and store card information
