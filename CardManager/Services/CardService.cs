@@ -22,7 +22,7 @@ namespace CardManager.Services
             return await _repository.LoadCardsAsync();
         }
 
-        public async Task<Card?> AddCardAsync(int cardId, string? category = null)
+        public async Task<Card?> AddCardAsync(int cardId, string? category = null, int amount = 1)
         {
             var card = await _scraper.ScrapeCardAsync(cardId);
             if (card != null)
@@ -31,6 +31,7 @@ namespace CardManager.Services
                 {
                     card.Category = category;
                 }
+                card.Amount = amount;
                 await _repository.AddOrUpdateCardAsync(card);
             }
             return card;
@@ -38,19 +39,21 @@ namespace CardManager.Services
 
         public async Task<Card?> RefreshCardAsync(int cardId)
         {
-            // Get existing card to preserve category
+            // Get existing card to preserve category and amount
             var existingCards = await _repository.LoadCardsAsync();
             var existingCard = existingCards.FirstOrDefault(c => c.Id == cardId);
             string? existingCategory = existingCard?.Category;
+            int existingAmount = existingCard?.Amount ?? 1;
 
             var card = await _scraper.ScrapeCardAsync(cardId);
             if (card != null)
             {
-                // Preserve the category when refreshing
+                // Preserve the category and amount when refreshing
                 if (!string.IsNullOrEmpty(existingCategory))
                 {
                     card.Category = existingCategory;
                 }
+                card.Amount = existingAmount;
                 await _repository.AddOrUpdateCardAsync(card);
             }
             return card;
@@ -66,8 +69,9 @@ namespace CardManager.Services
                 var refreshedCard = await _scraper.ScrapeCardAsync(cards[i].Id);
                 if (refreshedCard != null)
                 {
-                    // Preserve the category when refreshing
+                    // Preserve the category and amount when refreshing
                     refreshedCard.Category = cards[i].Category;
+                    refreshedCard.Amount = cards[i].Amount;
                     updatedCards.Add(refreshedCard);
                 }
                 else
@@ -90,6 +94,17 @@ namespace CardManager.Services
             if (card != null)
             {
                 card.Category = category;
+                await _repository.SaveCardsAsync(cards);
+            }
+        }
+
+        public async Task UpdateCardAmountAsync(int cardId, int amount)
+        {
+            var cards = await _repository.LoadCardsAsync();
+            var card = cards.FirstOrDefault(c => c.Id == cardId);
+            if (card != null)
+            {
+                card.Amount = amount;
                 await _repository.SaveCardsAsync(cards);
             }
         }

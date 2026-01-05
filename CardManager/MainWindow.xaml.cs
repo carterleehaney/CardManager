@@ -109,6 +109,16 @@ namespace CardManager
             CardsDataGrid.ItemsSource = filteredCards;
             _cardsView = CollectionViewSource.GetDefaultView(CardsDataGrid.ItemsSource);
             UpdateCardCount(filteredCards.Count);
+            UpdateTotalPrice();
+        }
+
+        private void UpdateTotalPrice()
+        {
+            decimal total = _allCards
+                .Where(c => c.TotalValue.HasValue)
+                .Sum(c => c.TotalValue!.Value);
+            
+            TotalPriceText.Text = $"${total:N2}";
         }
 
         private List<Card> ApplyFilter(List<Card> cards)
@@ -164,6 +174,13 @@ namespace CardManager
                 return;
             }
 
+            if (!int.TryParse(AmountTextBox.Text.Trim(), out int amount) || amount < 1)
+            {
+                MessageBox.Show("Please enter a valid quantity (1 or more).", 
+                    "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             if (_allCards.Any(c => c.Id == cardId))
             {
                 var result = MessageBox.Show(
@@ -180,7 +197,7 @@ namespace CardManager
                 SetStatus($"Fetching card {cardId}...");
 
                 string? category = CategoryComboBox.Text?.Trim();
-                var card = await _cardService.AddCardAsync(cardId, category);
+                var card = await _cardService.AddCardAsync(cardId, category, amount);
 
                 if (card != null)
                 {
@@ -198,7 +215,8 @@ namespace CardManager
                     RefreshDataGrid();
                     await RefreshCategoryDropdownsAsync();
                     CardIdTextBox.Clear();
-                    SetStatus($"Added card: {card.Name}");
+                    AmountTextBox.Text = "1";
+                    SetStatus($"Added card: {card.Name} (x{amount})");
                 }
                 else
                 {
@@ -340,6 +358,51 @@ namespace CardManager
             }
         }
 
+        private async void EditAmountMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (CardsDataGrid.SelectedItem is not Card selectedCard)
+                return;
+
+            var dialog = new InputDialog(
+                $"Enter quantity for '{selectedCard.Name}':",
+                selectedCard.Amount.ToString(),
+                new List<string>());
+            dialog.Owner = this;
+
+            if (dialog.ShowDialog() == true)
+            {
+                if (int.TryParse(dialog.InputValue, out int newAmount) && newAmount >= 1)
+                {
+                    if (newAmount != selectedCard.Amount)
+                    {
+                        try
+                        {
+                            await _cardService.UpdateCardAmountAsync(selectedCard.Id, newAmount);
+                            
+                            // Update local list
+                            var card = _allCards.FirstOrDefault(c => c.Id == selectedCard.Id);
+                            if (card != null)
+                            {
+                                card.Amount = newAmount;
+                            }
+
+                            RefreshDataGrid();
+                            SetStatus($"Updated quantity for: {selectedCard.Name} (x{newAmount})");
+                        }
+                        catch (Exception ex)
+                        {
+                            SetStatus($"Error updating quantity: {ex.Message}");
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Please enter a valid quantity (1 or more).",
+                        "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+        }
+
         private async void RefreshCardMenuItem_Click(object sender, RoutedEventArgs e)
         {
             if (CardsDataGrid.SelectedItem is Card selectedCard)
@@ -432,9 +495,15 @@ namespace CardManager
                 "Category" => direction == ListSortDirection.Ascending 
                     ? filteredCards.OrderBy(c => c.Category) 
                     : filteredCards.OrderByDescending(c => c.Category),
+                "Amount" => direction == ListSortDirection.Ascending 
+                    ? filteredCards.OrderBy(c => c.Amount) 
+                    : filteredCards.OrderByDescending(c => c.Amount),
                 "MarketPrice" => direction == ListSortDirection.Ascending 
                     ? filteredCards.OrderBy(c => c.MarketPrice ?? decimal.MaxValue) 
                     : filteredCards.OrderByDescending(c => c.MarketPrice ?? decimal.MinValue),
+                "TotalValue" => direction == ListSortDirection.Ascending 
+                    ? filteredCards.OrderBy(c => c.TotalValue ?? decimal.MaxValue) 
+                    : filteredCards.OrderByDescending(c => c.TotalValue ?? decimal.MinValue),
                 "LatestSalePrice" => direction == ListSortDirection.Ascending 
                     ? filteredCards.OrderBy(c => c.LatestSalePrice ?? decimal.MaxValue) 
                     : filteredCards.OrderByDescending(c => c.LatestSalePrice ?? decimal.MinValue),

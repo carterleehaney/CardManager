@@ -34,12 +34,41 @@
                 Background="#CC2d2418"
                 CornerRadius="6"
                 Padding="16,12">
-            <TextBlock Text="Card Manager" 
-                       FontFamily="pack://application:,,,/Resources/#Press Start 2P"
-                       FontSize="18" 
-                       Foreground="#e8d5b5"
-                       VerticalAlignment="Center"
-                       HorizontalAlignment="Left"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0"
+                           Text="Card Manager" 
+                           FontFamily="pack://application:,,,/Resources/#Press Start 2P"
+                           FontSize="18" 
+                           Foreground="#e8d5b5"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Left"/>
+                
+                <StackPanel Grid.Column="1" 
+                            Orientation="Horizontal" 
+                            VerticalAlignment="Center">
+                    <TextBlock Text="TOTAL VALUE:" 
+                               FontFamily="pack://application:,,,/Resources/#Press Start 2P"
+                               FontSize="10" 
+                               Foreground="#a89878"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0"/>
+                    <Border Background="#44000000" 
+                            CornerRadius="4" 
+                            Padding="12,6">
+                        <TextBlock x:Name="TotalPriceText"
+                                   Text="$0.00" 
+                                   FontFamily="pack://application:,,,/Resources/#Press Start 2P"
+                                   FontSize="14" 
+                                   Foreground="#7cfc00"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                </StackPanel>
+            </Grid>
         </Border>
         
         <!-- Input Section -->
@@ -53,9 +82,11 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="130"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="60"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="130"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
@@ -77,6 +108,21 @@
                          KeyDown="CardIdTextBox_KeyDown"/>
                 
                 <Label Grid.Column="2" 
+                       Content="Qty:" 
+                       VerticalAlignment="Center"
+                       Foreground="#d4c4a8"
+                       FontFamily="{StaticResource PixelFont}"
+                       FontSize="10"
+                       Margin="12,0,8,0"/>
+                
+                <TextBox x:Name="AmountTextBox" 
+                         Grid.Column="3"
+                         Style="{DynamicResource ModernTextBox}"
+                         VerticalAlignment="Center"
+                         Text="1"
+                         KeyDown="CardIdTextBox_KeyDown"/>
+                
+                <Label Grid.Column="4" 
                        Content="Category:" 
                        VerticalAlignment="Center"
                        Foreground="#d4c4a8"
@@ -85,13 +131,13 @@
                        Margin="12,0,8,0"/>
                 
                 <ComboBox x:Name="CategoryComboBox" 
-                          Grid.Column="3"
+                          Grid.Column="5"
                           IsEditable="True"
                           VerticalAlignment="Center"
                           Height="38"/>
                 
                 <Button x:Name="AddCardButton" 
-                        Grid.Column="4"
+                        Grid.Column="6"
                         Content="Add Card"
                         Style="{DynamicResource PrimaryButton}"
                         FontFamily="{StaticResource PixelFont}"
@@ -100,7 +146,7 @@
                         Click="AddCardButton_Click"/>
                 
                 <Button x:Name="DeleteSelectedButton" 
-                        Grid.Column="6"
+                        Grid.Column="8"
                         Content="Delete Selected"
                         Style="{DynamicResource SecondaryButton}"
                         FontFamily="{StaticResource PixelFont}"
@@ -109,7 +155,7 @@
                         Click="DeleteSelectedButton_Click"/>
                 
                 <Button x:Name="RefreshAllButton" 
-                        Grid.Column="7"
+                        Grid.Column="9"
                         Content="Refresh All"
                         Style="{DynamicResource SecondaryButton}"
                         FontFamily="{StaticResource PixelFont}"
@@ -199,7 +245,7 @@
                     <DataGridTextColumn Header="Name" 
                                         Binding="{Binding Name}" 
                                         Width="*"
-                                        MinWidth="200"
+                                        MinWidth="180"
                                         CanUserSort="True"
                                         SortMemberPath="Name">
                         <DataGridTextColumn.ElementStyle>
@@ -210,7 +256,7 @@
                     </DataGridTextColumn>
                     <DataGridTextColumn Header="Category" 
                                         Binding="{Binding CategoryDisplay}" 
-                                        Width="110"
+                                        Width="100"
                                         CanUserSort="True"
                                         SortMemberPath="Category">
                         <DataGridTextColumn.ElementStyle>
@@ -219,9 +265,21 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
+                    <DataGridTextColumn Header="Qty" 
+                                        Binding="{Binding Amount}" 
+                                        Width="50"
+                                        CanUserSort="True"
+                                        SortMemberPath="Amount">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Padding" Value="8,0,12,0"/>
+                                <Setter Property="TextAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
                     <DataGridTextColumn Header="Market Price" 
                                         Binding="{Binding MarketPriceDisplay}" 
-                                        Width="105"
+                                        Width="100"
                                         CanUserSort="True"
                                         SortMemberPath="MarketPrice">
                         <DataGridTextColumn.ElementStyle>
@@ -230,9 +288,21 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
+                    <DataGridTextColumn Header="Total" 
+                                        Binding="{Binding TotalValueDisplay}" 
+                                        Width="90"
+                                        CanUserSort="True"
+                                        SortMemberPath="TotalValue">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Padding" Value="8,0,12,0"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
                     <DataGridTextColumn Header="Last Sale" 
                                         Binding="{Binding LatestSaleDisplay}" 
-                                        Width="90"
+                                        Width="85"
                                         CanUserSort="True"
                                         SortMemberPath="LatestSalePrice">
                         <DataGridTextColumn.ElementStyle>
@@ -241,9 +311,9 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="Sale Date" 
+                    <DataGridTextColumn Header="Last Sale Date" 
                                         Binding="{Binding LatestSaleDateDisplay}" 
-                                        Width="135"
+                                        Width="140"
                                         CanUserSort="True"
                                         SortMemberPath="LatestSaleDate">
                         <DataGridTextColumn.ElementStyle>
@@ -254,7 +324,7 @@
                     </DataGridTextColumn>
                     <DataGridTextColumn Header="Updated" 
                                         Binding="{Binding LastUpdatedDisplay}" 
-                                        Width="140"
+                                        Width="120"
                                         CanUserSort="True"
                                         SortMemberPath="LastUpdated">
                         <DataGridTextColumn.ElementStyle>
@@ -268,6 +338,8 @@
                     <ContextMenu>
                         <MenuItem Header="Edit Category" Click="EditCategoryMenuItem_Click"/>
                         <MenuItem Header="Clear Category" Click="ClearCategoryMenuItem_Click"/>
+                        <Separator/>
+                        <MenuItem Header="Edit Amount" Click="EditAmountMenuItem_Click"/>
                         <Separator/>
                         <MenuItem Header="Refresh Card" Click="RefreshCardMenuItem_Click"/>
                         <MenuItem Header="Open on TCGPlayer" Click="OpenTCGPlayerMenuItem_Click"/>
